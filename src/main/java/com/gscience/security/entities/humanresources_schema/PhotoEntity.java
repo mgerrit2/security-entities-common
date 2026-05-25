@@ -1,4 +1,4 @@
-package com.gscience.security.entities.common.humanresources_schema;
+package com.gscience.security.entities.humanresources_schema;
 
 import jakarta.persistence.*;
 import lombok.*;

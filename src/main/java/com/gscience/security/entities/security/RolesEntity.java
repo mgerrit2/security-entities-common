@@ -1,5 +1,7 @@
-package com.gscience.security.entities.common.security;
+package com.gscience.security.entities.security;
 
+
+import com.gscience.security.entities.humanresources_schema.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +15,8 @@ import java.util.Objects;
 @Builder
 @Data
 @Entity
-@Table(name = "typeOfAccess",schema = "security_schema")
-public class TypeOfAccessEntity {
+@Table(name = "roles",schema = "security_schema")
+public class RolesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,19 +25,21 @@ public class TypeOfAccessEntity {
 
     private String name;
 
+    @Column(name = "default_role")
+    private Boolean defaultRole;
+
     @Builder.Default
     @Version
     @Column(name = "record_version")
-    private long version = 0l;
-
+    private Long version = 0l;
 
     //region Hash and equals code
     @Override
-    public boolean equals(Object o) {
+     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TypeOfAccessEntity)) return false;
-        TypeOfAccessEntity typeOfAccessEntity = (TypeOfAccessEntity) o;
-        return Objects.equals(this.id, typeOfAccessEntity.id);
+        if (!(o instanceof UserEntity)) return false;
+        RolesEntity rolesEntity = (RolesEntity) o;
+        return Objects.equals(this.id, rolesEntity.id);
     }
 
     @Override

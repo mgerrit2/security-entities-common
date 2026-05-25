@@ -40,7 +40,7 @@ tasks.named('test') {
 publishing {
 	publications {
 		maven(MavenPublication) {
-			groupId = 'org.gscience.entities'
+			groupId = 'org.gscience.security'
 			artifactId = 'common'
 			version = '1.0'
 
@@ -48,7 +48,7 @@ publishing {
 
 			// Optional: Add Maven POM properties
 			pom {
-				name = 'Gsience entities common for security webservice'
+				name = 'GSience common classes for security webservice'
 				description = 'Rest tools'
 				url = 'https://github.com/your-username/your-repository'
 				licenses {

@@ -5,9 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -22,6 +31,25 @@ public class TypeOfAccessEntity {
     private Long id;
 
     private String name;
+
+
+    @CreatedDate
+    @Column(name = "creates_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @CreatedBy
+    @Column(name = "created_by", length = 50, nullable = true, updatable = false)
+    private String createdBy;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
+    @LastModifiedBy
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy; // Tracks who soft-deleted or edited the record
+
+
 
     @Builder.Default
     @Version
@@ -43,5 +71,17 @@ public class TypeOfAccessEntity {
         return Objects.hash(this.id);
     }
     //endregion
+
+
+    /**
+     * this will print the class fields with newline for each field
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+        return new ReflectionToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .toString();
+    }
 
 }

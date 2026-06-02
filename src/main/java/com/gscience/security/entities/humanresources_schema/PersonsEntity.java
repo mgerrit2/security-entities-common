@@ -7,6 +7,9 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("java:s125")
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -54,18 +58,19 @@ public class PersonsEntity {
     @Column(name = "created_by", length = 50, nullable = true, updatable = false)
     private String createdBy;
 
-
+    @LastModifiedDate
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
-    @Column(name = "updated_by", length = 50)
-    private String updatedBy;
+    @LastModifiedBy
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy; // Tracks who soft-deleted or edited the record
 
     //region mapping
     @OneToOne(mappedBy = "person", fetch = FetchType.LAZY)
     private UserEntity user;
 
-    @OrderBy("uploaded_at ASC")
+    @OrderBy("updated_at ASC")
     @Builder.Default
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoEntity> photos = new ArrayList<>();
@@ -137,11 +142,10 @@ public class PersonsEntity {
         return Optional.ofNullable(this.updatedAt);
     }
 
-    public Optional<String> getUpdatedBy() {
-        // 'updated_by' is NOT marked nullable = false,
-        // and @LastModifiedBy may not be set initially, so Optional is most appropriate here.
-        return Optional.ofNullable(this.updatedBy);
+    public Optional<String> getLastModifiedBy() {
+        return Optional.ofNullable(this.lastModifiedBy);
     }
+
     //endregion
 
     /**

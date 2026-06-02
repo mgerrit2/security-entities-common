@@ -6,12 +6,17 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.sql.Types;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -40,9 +45,22 @@ public class PhotoEntity {
     @Column(name = "image_data")
     private byte[] imageData;
 
+
+    @CreatedDate
+    @Column(name = "creates_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @CreatedBy
+    @Column(name = "created_by", length = 50, nullable = true, updatable = false)
+    private String createdBy;
+
     @CreationTimestamp
-    @Column(name = "uploaded_at", updatable = false)
-    private OffsetDateTime uploadedAt;
+    @Column(name = "updated_at", updatable = false)
+    private OffsetDateTime updatedAt;
+
+    @LastModifiedBy
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy; // Tracks who soft-deleted or edited the record
 
     @Column(name = "active")
     private Boolean active;
@@ -65,7 +83,7 @@ public class PhotoEntity {
     }
 
     public Optional<OffsetDateTime> getUploadedAt(){
-        return Optional.ofNullable(this.uploadedAt);
+        return Optional.ofNullable(this.updatedAt);
     }
 
     public Optional<Boolean> getActive(){

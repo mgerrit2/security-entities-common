@@ -1,5 +1,6 @@
 package com.gscience.security.entities.humanresources_schema;
 
+import com.gscience.security.entities.security.JWTEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,9 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -74,11 +79,13 @@ public class UserEntity {
     @Column(name = "created_by", length = 50, nullable = false, updatable = false)
     private String createdBy;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    @Column(name = "updated_by", length = 50)
-    private String updatedBy;
+    @LastModifiedBy
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy; // Tracks who soft-deleted or edited the record
 
     //@Setter(AccessLevel.PROTECTED)
     @Version
@@ -110,11 +117,6 @@ public class UserEntity {
         return Optional.ofNullable(this.updatedAt);
     }
 
-    public Optional<String> getUpdatedBy() {
-        // 'updated_by' is NOT marked nullable = false,
-        // and @LastModifiedBy may not be set initially, so Optional is most appropriate here.
-        return Optional.ofNullable(this.updatedBy);
-    }
     //endregion
 
     //region mapping
@@ -122,6 +124,12 @@ public class UserEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id", unique = true)
     private PersonsEntity person;
+
+    @OneToOne(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    private JWTEntity jwtConfiguration;
 
     @Builder.Default
     @OneToMany(

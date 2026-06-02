@@ -1,10 +1,7 @@
 package com.gscience.security.entities.humanresources_schema;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.data.annotation.CreatedBy;
@@ -20,42 +17,40 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "user_roles",schema = "humanresources_schema")
-public class UserRolesEntity {
+@Table(name = "companies",schema = "HUMANRESOURCES_SCHEMA")
+public class CompanyEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Id                  // 3. Marks this field as the Primary Key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 4. Auto-increments the ID (like SERIAL in PostgreSQL)
     private Long id;
 
+    @Column(name = "company_name", nullable = false, unique = true, length = 100) // 5. Customizes column rules
+    private String nameCompany;
 
-    private String role;
+    @Column(name = "legal_entity_type", nullable = false)
+    private String legalEntityType; // e.g., "LLC", "GmbH", "Inc"
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true) // This tells Hibernate the column is here
-    private UserEntity user;
+    @Column(name = "tenant_id", nullable = false, unique = true)
+    private String tenantId; // The ID you would put in your JWT!
 
     @CreatedDate
-    @Column(name = "creates_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
 
     @CreatedBy
-    @Column(name = "created_by", length = 50, nullable = false, updatable = false)
+    @Column(name = "created_by", length = 50, nullable = true, updatable = false)
     private String createdBy;
 
     @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at") // New column to store the last modification time
     private OffsetDateTime updatedAt;
 
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy; // Tracks who soft-deleted or edited the record
-
-    @Version
-    @Column(name = "record_version")
-    private Long version;
 
     /**
      * this will print the class fields with newline for each field
@@ -65,7 +60,6 @@ public class UserRolesEntity {
     @Override
     public String toString() {
         return new ReflectionToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
-                .setExcludeFieldNames("user")
                 .toString();
     }
 
@@ -73,9 +67,8 @@ public class UserRolesEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UserEntity)) return false;
-        UserRolesEntity userRolesEntity = (UserRolesEntity) o;
-        return Objects.equals(this.id, userRolesEntity.id);
+        if (!(o instanceof CompanyEntity companyEntity)) return false;
+        return Objects.equals(this.id, companyEntity.id);
     }
 
     @Override

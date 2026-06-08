@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @Builder
 @Getter
 @Setter
+@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "active")
 @Entity
 @Table(name = "persons",schema = "HUMANRESOURCES_SCHEMA")
 public class PersonsEntity {
@@ -39,9 +42,9 @@ public class PersonsEntity {
     @Column(name = "last_name")
     private String lastname;
 
-    @Builder.Default
-    @Column(name = "active")
-    private boolean active = true;
+
+    @Column(name = "active", insertable = false, updatable = false)
+    private boolean active;
 
     @Column(
             name = "email",
@@ -72,7 +75,9 @@ public class PersonsEntity {
 
     @OrderBy("updated_at ASC")
     @Builder.Default
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "person",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+    )
     private List<PhotoEntity> photos = new ArrayList<>();
 
     /**

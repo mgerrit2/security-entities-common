@@ -2,12 +2,11 @@ package com.gscience.security.entities.humanresources_schema;
 
 import com.gscience.security.entities.security.JWTEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,16 +14,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
+@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "active")
 @Entity
 @Table(name = "users",schema = "humanresources_schema")
 public class UserEntity {
@@ -67,10 +64,6 @@ public class UserEntity {
     @Column(name = "\"userSid\"") // Quotes protect the mixed casing in PostgreSQL
     private String userSid;
 
-    @Builder.Default
-    @Column(name = "active")
-    private boolean active = true;
-
     @CreatedDate
     @Column(name = "creates_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -86,6 +79,9 @@ public class UserEntity {
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy; // Tracks who soft-deleted or edited the record
+
+    @Column(name = "active", insertable = false, updatable = false)
+    private boolean active;
 
     //@Setter(AccessLevel.PROTECTED)
     @Version
@@ -117,10 +113,34 @@ public class UserEntity {
         return Optional.ofNullable(this.updatedAt);
     }
 
+    public List<CompanyEntity> getCompanies() {
+        return this.companies != null ? new ArrayList<>(this.companies) : new ArrayList<>();
+    }
+
     //endregion
 
     //region mapping
-    // De fysieke koppeling naar de tabel 'persons'
+
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_companies",
+            schema = "humanresources_schema",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "company_id")
+    )
+    private Set<CompanyEntity> companies = new HashSet<>();
+
+    public void addCompany(CompanyEntity company) {
+        if (this.companies == null) {
+            this.companies = new HashSet<>();
+        }
+        if (company != null) {
+            this.companies.add(company);
+        }
+    }
+
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id", unique = true)
     private PersonsEntity person;

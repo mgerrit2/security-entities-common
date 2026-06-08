@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Builder
 @Getter
 @Setter
+@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "active")
 @Entity
 @Table(name = "photos", schema = "humanresources_schema")
 public class PhotoEntity {
@@ -62,8 +65,8 @@ public class PhotoEntity {
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy; // Tracks who soft-deleted or edited the record
 
-    @Column(name = "active")
-    private Boolean active;
+    @Column(name = "active", insertable = false, updatable = false)
+    private boolean active;
 
     //region optional getters
     public Optional<Long> getId(){

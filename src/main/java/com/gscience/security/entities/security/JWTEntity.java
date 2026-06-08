@@ -109,11 +109,6 @@ public class JWTEntity {
     @Column(name = "xms_ftd")
     private String xmsFtd;
 
-    @Builder.Default
-    @Column(name = "active")
-    private boolean active = true;
-
-
     @CreatedDate
     @Column(name = "creates_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -156,9 +151,6 @@ public class JWTEntity {
     public Optional<String> getXmsFtd(){
         return Optional.ofNullable(this.xmsFtd);
     }
-    public Optional<Boolean> getActive(){
-        return Optional.of(this.active);
-    }
     public Optional<OffsetDateTime> getCreatedAt(){
         return Optional.of(this.createdAt);
     }
@@ -181,7 +173,7 @@ public class JWTEntity {
     // Add this field inside JWTEntity.java
 
     //region Description
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @MapsId
     @JoinColumn(name = "id") // Komt overeen met de primary key kolom van de 'jwt' tabel
     @lombok.Getter

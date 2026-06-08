@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -21,6 +23,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Builder
 @Data
+@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "active")
 @Entity
 @Table(name = "user_roles",schema = "humanresources_schema")
 public class UserRolesEntity {
@@ -33,7 +36,7 @@ public class UserRolesEntity {
 
     private String role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = true) // This tells Hibernate the column is here
     private UserEntity user;
 
@@ -52,6 +55,9 @@ public class UserRolesEntity {
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy; // Tracks who soft-deleted or edited the record
+
+    @Column(name = "active", insertable = false, updatable = false)
+    private boolean active;
 
     @Version
     @Column(name = "record_version")
